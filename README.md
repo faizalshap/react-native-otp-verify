@@ -3,11 +3,11 @@
 This package uses Automatic SMS Verification with the SMS Retriever API.
 With the SMS Retriever API, you can perform SMS-based user verification in your Android app automatically, without requiring the user to manually type verification codes, and without requiring any extra app permissions.
 
- # Message Format/Structure
+ ## Message Format/Structure
  In order to detect the message, SMS message must include a hash that identifies your app. This hash can be obtained by using the getHash() method below.
 
- Please read the official documentation for the message structure at
-`https://developers.google.com/identity/sms-retriever/verify`
+ Please read the official documentation for the message structure at this
+[Google developer guide](https://developers.google.com/identity/sms-retriever/verify)
 
 ## Getting started
 
@@ -27,12 +27,12 @@ With the SMS Retriever API, you can perform SMS-based user verification in your 
   - Add `import com.faizal.OtpVerify.RNOtpVerifyPackage;` to the imports at the top of the file
   - Add `new RNOtpVerifyPackage()` to the list returned by the `getPackages()` method
 2. Append the following lines to `android/settings.gradle`:
-  	```
+  	```gradle
   	include ':react-native-otp-verify'
   	project(':react-native-otp-verify').projectDir = new File(rootProject.projectDir, 	'../node_modules/react-native-otp-verify/android')
   	```
 3. Insert the following lines inside the dependencies block in `android/app/build.gradle`:
-  	```
+  	```gradle
       compile project(':react-native-otp-verify')
   	```
 
@@ -65,28 +65,28 @@ startListeningForOtp = () =>
 
 #### Methods
 ---
-### getOtp():Promise<boolean>
+### `getOtp():Promise<boolean>`
 
 Start listening for OTP/SMS. Return true if listener starts else throws error.
 
 ---
-### getOtp():Promise<boolean>
+### `getOtp():Promise<boolean>`
 
 Start listening for OTP/SMS. Return true if listener starts else throws error.
 
 ---
-### getHash():Promise<string[]>
+### `getHash():Promise<string[]>`
 
 Gets the hash code for the application which should be added at the end of message.
 This is just a one time process.
 
 ---
-### addListener(handler:(message:string)=>any):Promise<boolean>
+### `addListener(handler:(message:string)=>any):Promise<boolean>`
 
 Adds a javascript listener to the handler passed which is called when message is received.
 
 ---
-### removeListener():void
+### `removeListener():void`
 
 Removes the listener.
 
