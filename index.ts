@@ -2,19 +2,22 @@ import { DeviceEventEmitter, NativeModules } from 'react-native';
 
 const RNOtpVerify = NativeModules.RNOtpVerify;
 
-class OtpVerify {
+interface OtpVerify {
+    getOtp: () => Promise<boolean>;
+    getHash: () => Promise<string[]>;
+    addListener: (handler: (value: string) => any) => import("react-native").EmitterSubscription;
+    removeListener: () => void;
+}
 
-    getOtp: () => Promise<boolean> = RNOtpVerify.getOtp;
+const OtpVerify: OtpVerify = {
+    getOtp: RNOtpVerify.getOtp,
+    getHash: RNOtpVerify.getHash,
 
-    getHash: () => Promise<string[]> = RNOtpVerify.getHash;
-
-    addListener = (handler: (value: string) => any) =>
+    addListener: (handler) =>
         DeviceEventEmitter
-            .addListener('com.faizalshap.otpVerify:otpReceived', handler);
+            .addListener('com.faizalshap.otpVerify:otpReceived', handler),
 
-    removeListener = () =>
-        DeviceEventEmitter
-            .removeAllListeners('com.faizalshap.otpVerify:otpReceived');
+    removeListener: () => DeviceEventEmitter.removeAllListeners('com.faizalshap.otpVerify:otpReceived'),
 }
 
 export default OtpVerify;
