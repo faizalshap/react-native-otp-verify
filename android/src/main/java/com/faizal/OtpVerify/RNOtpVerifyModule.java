@@ -51,9 +51,10 @@ public class RNOtpVerifyModule extends ReactContextBaseJavaModule implements Lif
             AppSignatureHelper helper = new AppSignatureHelper(reactContext);
             ArrayList<String> signatures = helper.getAppSignatures();
             WritableArray arr = Arguments.createArray();
-            for (String s : signatures)
+            for (String s : signatures) {
                 arr.pushString(s);
-            promise.resolve(signatures);
+            }
+            promise.resolve(arr);
         } catch (Exception e) {
             promise.reject(e);
         }
