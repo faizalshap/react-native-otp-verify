@@ -1,27 +1,23 @@
-
 # react-native-otp-verify
-This package uses Automatic SMS Verification with the SMS Retriever API.
-With the SMS Retriever API, you can perform SMS-based user verification in your Android app automatically, without requiring the user to manually type verification codes, and without requiring any extra app permissions.
+Automatic SMS Verification with the SMS Retriever API, you can perform SMS-based user verification in your Android app automatically, without requiring the user to manually type verification codes, and without requiring any extra app permissions.
 
- ## Message Format/Structure
- In order to detect the message, SMS message must include a hash that identifies your app. This hash can be obtained by using the getHash() method below.
+## Message Format/Structure
+In order to detect the message, SMS message must include a hash that identifies your app. This hash can be obtained by using the getHash() method below.
 
- Please read the official documentation for the message structure at this
+Please read the official documentation for the message structure at this
 [Google developer guide](https://developers.google.com/identity/sms-retriever/verify)
 
 ## Getting started
 
 `$ npm install react-native-otp-verify --save`
  or
-`$ yarn react-native-otp-verify`
-### Mostly automatic installation
+`$ yarn add react-native-otp-verify`
+
+### Auto Linking
 
 `$ react-native link react-native-otp-verify`
 
-### Manual installation
-
-
-#### Android
+### Manual Linking
 
 1. Open up `android/app/src/main/java/[...]/MainActivity.java`
   - Add `import com.faizal.OtpVerify.RNOtpVerifyPackage;` to the imports at the top of the file
@@ -35,7 +31,6 @@ With the SMS Retriever API, you can perform SMS-based user verification in your 
   	```gradle
       compile project(':react-native-otp-verify')
   	```
-
 
 ## Usage
 ```javascript
@@ -51,24 +46,17 @@ startListeningForOtp = () =>
     .then(p => RNOtpVerify.addListener(this.otpHandler))
     .catch(p => console.log(p));
 
- otpHandler = (message: string) => {
-        const otp = /(\d{4})/g.exec(message)[1];
-        this.setState({ otp });
-        RNOtpVerify.removeListener();
-        Keyboard.dismiss();
+otpHandler = (message) => {
+    const otp = /(\d{4})/g.exec(message)[1];
+    this.setState({ otp });
 }
 
- componentWillUnmount() {
+componentWillUnmount() {
     RNOtpVerify.removeListener();
- }
+}
 ```
 
 #### Methods
----
-### `getOtp():Promise<boolean>`
-
-Start listening for OTP/SMS. Return true if listener starts else throws error.
-
 ---
 ### `getOtp():Promise<boolean>`
 
