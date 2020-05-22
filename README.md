@@ -13,7 +13,7 @@ With the SMS Retriever API, you can perform SMS-based user verification in your 
 
 `$ npm install react-native-otp-verify --save`
  or
-`$ yarn react-native-otp-verify`
+`$ yarn add react-native-otp-verify`
 ### Mostly automatic installation
 
 `$ react-native link react-native-otp-verify`
