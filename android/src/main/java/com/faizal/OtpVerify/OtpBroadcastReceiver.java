@@ -48,6 +48,10 @@ public class OtpBroadcastReceiver extends BroadcastReceiver {
             Bundle extras = intent.getExtras();
             Status status = (Status) extras.get(SmsRetriever.EXTRA_STATUS);
 
+            if (status == null) {
+                return;
+            }
+
             switch (status.getStatusCode()) {
                 case CommonStatusCodes.SUCCESS:
                     // Get SMS message contents
