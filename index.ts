@@ -10,8 +10,8 @@ interface OtpVerify {
 }
 
 const OtpVerify: OtpVerify = {
-    getOtp: RNOtpVerify.getOtp,
-    getHash: RNOtpVerify.getHash,
+    getOtp: RNOtpVerify?.getOtp,
+    getHash: RNOtpVerify?.getHash,
 
     addListener: (handler) =>
         DeviceEventEmitter
