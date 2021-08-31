@@ -1,6 +1,7 @@
 interface OtpVerify {
     getOtp: () => Promise<boolean>;
     getHash: () => Promise<string[]>;
+    requestHint: () => Promise<string>;
     addListener: (handler: (value: string) => any) => import("react-native").EmitterSubscription;
     removeListener: () => void;
 }

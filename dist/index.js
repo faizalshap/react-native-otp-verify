@@ -5,6 +5,7 @@ var RNOtpVerify = react_native_1.NativeModules.RNOtpVerify;
 var OtpVerify = {
     getOtp: RNOtpVerify === null || RNOtpVerify === void 0 ? void 0 : RNOtpVerify.getOtp,
     getHash: RNOtpVerify === null || RNOtpVerify === void 0 ? void 0 : RNOtpVerify.getHash,
+    requestHint: RNOtpVerify === null || RNOtpVerify === void 0 ? void 0 : RNOtpVerify.requestHint,
     addListener: function (handler) {
         return react_native_1.DeviceEventEmitter
             .addListener('com.faizalshap.otpVerify:otpReceived', handler);
