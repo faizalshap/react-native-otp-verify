@@ -1,6 +1,6 @@
 {
   "name": "react-native-otp-verify",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "React native sms verification without additional permissions.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -22,10 +22,10 @@
     "url": "git@github.com:faizalshap/react-native-otp-verify.git"
   },
   "peerDependencies": {
-    "react-native": "^0.63.2"
+    "react-native": ">=0.63"
   },
   "devDependencies": {
-    "@types/react-native": "^0.63.2",
+    "@types/react-native": "^0.66",
     "typescript": "^3.1.3"
   }
 }
