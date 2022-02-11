@@ -3,7 +3,8 @@ package com.faizal.OtpVerify;
 
 import android.content.BroadcastReceiver;
 import android.content.IntentFilter;
-import android.support.annotation.NonNull;
+// import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.util.Log;
 
 import com.facebook.react.bridge.Arguments;
@@ -120,6 +121,16 @@ public class RNOtpVerifyModule extends ReactContextBaseJavaModule implements Lif
     @Override
     public void onHostDestroy() {
         unregisterReceiver(mReceiver);
+    }
+
+    @ReactMethod
+    public void addListener(String eventName) {
+        // Keep: Required for RN built in Event Emitter Calls.
+    }
+
+    @ReactMethod
+    public void removeListeners(Integer count) {
+        // Keep: Required for RN built in Event Emitter Calls.
     }
 
 }
