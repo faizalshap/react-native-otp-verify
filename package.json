@@ -21,9 +21,6 @@
     "type": "git",
     "url": "git@github.com:faizalshap/react-native-otp-verify.git"
   },
-  "peerDependencies": {
-    "react-native": "*"
-  },
   "devDependencies": {
     "@types/react-native": "^0.66",
     "typescript": "^3.1.3"
