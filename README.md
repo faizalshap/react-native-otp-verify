@@ -70,11 +70,6 @@ startListeningForOtp = () =>
 Start listening for OTP/SMS. Return true if listener starts else throws error.
 
 ---
-### `getOtp():Promise<boolean>`
-
-Start listening for OTP/SMS. Return true if listener starts else throws error.
-
----
 ### `getHash():Promise<string[]>`
 
 Gets the hash code for the application which should be added at the end of message.
