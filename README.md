@@ -36,13 +36,14 @@ import {
 
 // You can use the startListener and stopListener to manually trigger listeners again.
 // optionally pass numberOfDigits if you want to extract otp
-const { hash, otp, timeoutError, stopListener, startListener } = useOtpVerify({numberOfDigits: 4});
+const { hash, otp, message, timeoutError, stopListener, startListener } = useOtpVerify({numberOfDigits: 4});
 ```
 #### Properties
 | Property        |  Type  |  Description  |
 | ------------- |:-------------:|:-------------:|
 | hash      | string[] | The hash code for the application which should be added at the end of message.|
 | otp     | string | OTP retreived from SMS when received. (Must pass `numberOfDigits`)       |
+| message     | string |  SMS message when received.    |
 | timeoutError | boolean | Flag is set to true when after timeout (5 minutes) [Check here](https://developers.google.com/identity/sms-retriever/request#2_start_the_sms_retriever)  |
 | startListener | function | Manually starts listener again in case of timeout or any other error      |
 | stopListener | function | Stops listener for the sms      |
