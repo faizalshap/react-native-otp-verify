@@ -22,7 +22,7 @@ or
 
 ## Usage
 
-####Import the Library
+#### Import the Library
 ```javascript
 import {
   getHash,
@@ -31,14 +31,14 @@ import {
 } from 'react-native-otp-verify';
 ```
 
-####Using Hook
+#### Using Hook
 ```javascript
 
 // You can use the startListener and stopListener to manually trigger listeners again.
 // optionally pass numberOfDigits if you want to extract otp
 const { hash, otp, timeoutError, stopListener, startListener } = useOtpVerify({numberOfDigits: 4});
 ```
-####Properties
+#### Properties
 | Property        |  Type  |  Description  |
 | ------------- |:-------------:|:-------------:|
 | hash      | string[] | The hash code for the application which should be added at the end of message.|
@@ -47,7 +47,7 @@ const { hash, otp, timeoutError, stopListener, startListener } = useOtpVerify({n
 | startListener | function | Manually starts listener again in case of timeout or any other error      |
 | stopListener | function | Stops listener for the sms      |
 
-####Using Methods
+#### Using Methods
 ```javascript
 // using methods
 useEffect(() => {
