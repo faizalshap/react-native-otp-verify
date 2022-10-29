@@ -1,45 +1,51 @@
-
 package com.faizal.OtpVerify;
 
+import androidx.annotation.NonNull;
 import android.content.BroadcastReceiver;
 import android.content.IntentFilter;
-// import android.support.annotation.NonNull;
-import androidx.annotation.NonNull;
 import android.util.Log;
-
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.LifecycleEventListener;
-import com.facebook.react.bridge.Promise;
-import com.facebook.react.bridge.ReactApplicationContext;
-import com.facebook.react.bridge.ReactContextBaseJavaModule;
-import com.facebook.react.bridge.ReactMethod;
+
 import com.facebook.react.bridge.WritableArray;
 import com.google.android.gms.auth.api.phone.SmsRetriever;
 import com.google.android.gms.auth.api.phone.SmsRetrieverClient;
+import com.google.android.gms.tasks.OnCanceledListener;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
 import java.util.ArrayList;
 
-public class RNOtpVerifyModule extends ReactContextBaseJavaModule implements LifecycleEventListener {
-    private static final String TAG = RNOtpVerifyModule.class.getSimpleName();
+import com.facebook.react.bridge.Promise;
+import com.facebook.react.bridge.ReactApplicationContext;
+import com.facebook.react.bridge.ReactContextBaseJavaModule;
+import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.module.annotations.ReactModule;
+
+@ReactModule(name = OtpVerifyModule.NAME)
+public class OtpVerifyModule extends ReactContextBaseJavaModule implements LifecycleEventListener {
+    public static final String NAME = "OtpVerify";
+    private static final String TAG = OtpVerifyModule.class.getSimpleName();
     private final ReactApplicationContext reactContext;
     private BroadcastReceiver mReceiver;
     private boolean isReceiverRegistered = false;
 
-    public RNOtpVerifyModule(ReactApplicationContext reactContext) {
+    public OtpVerifyModule(ReactApplicationContext reactContext) {
         super(reactContext);
         this.reactContext = reactContext;
-        mReceiver = new OtpBroadcastReceiver(reactContext);
-        getReactApplicationContext().addLifecycleEventListener(this);
+                mReceiver = new OtpBroadcastReceiver(reactContext);
+                getReactApplicationContext().addLifecycleEventListener(this);
         registerReceiverIfNecessary(mReceiver);
     }
 
     @Override
+    @NonNull
     public String getName() {
-        return "RNOtpVerify";
+        return NAME;
     }
+
 
     @ReactMethod
     public void getOtp(Promise promise) {
@@ -79,6 +85,18 @@ public class RNOtpVerifyModule extends ReactContextBaseJavaModule implements Lif
     private void requestOtp(final Promise promise) {
         SmsRetrieverClient client = SmsRetriever.getClient(reactContext);
         Task<Void> task = client.startSmsRetriever();
+        task.addOnCanceledListener(new OnCanceledListener() {
+          @Override
+          public void onCanceled() {
+            Log.e(TAG, "sms listener cancelled");
+          }
+        });
+        task.addOnCompleteListener(new OnCompleteListener<Void>() {
+          @Override
+          public void onComplete(@NonNull Task<Void> task) {
+            Log.e(TAG, "sms listener complete");
+          }
+        });
         task.addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
@@ -132,6 +150,4 @@ public class RNOtpVerifyModule extends ReactContextBaseJavaModule implements Lif
     public void removeListeners(Integer count) {
         // Keep: Required for RN built in Event Emitter Calls.
     }
-
 }
-

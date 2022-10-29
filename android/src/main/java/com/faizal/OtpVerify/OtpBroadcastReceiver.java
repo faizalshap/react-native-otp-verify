@@ -58,7 +58,7 @@ public class OtpBroadcastReceiver extends BroadcastReceiver {
                     String message = (String) extras.get(SmsRetriever.EXTRA_SMS_MESSAGE);
                     receiveMessage(message);
                     if (message != null) {
-                        Log.d("SMS", message);
+                        Log.d("SMS", "" + message);
                     }
                     break;
                 case CommonStatusCodes.TIMEOUT:
