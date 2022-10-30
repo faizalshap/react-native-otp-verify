@@ -1,15 +1,23 @@
 package com.faizal.OtpVerify;
 
 import androidx.annotation.NonNull;
+import android.app.Activity;
 import android.content.BroadcastReceiver;
+import android.content.Intent;
 import android.content.IntentFilter;
 import android.util.Log;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.LifecycleEventListener;
 
+import com.facebook.react.bridge.ActivityEventListener;
 import com.facebook.react.bridge.WritableArray;
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.identity.GetPhoneNumberHintIntentRequest;
+import com.google.android.gms.auth.api.identity.Identity;
 import com.google.android.gms.auth.api.phone.SmsRetriever;
 import com.google.android.gms.auth.api.phone.SmsRetrieverClient;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.tasks.OnCanceledListener;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -25,9 +33,12 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.module.annotations.ReactModule;
 
 @ReactModule(name = OtpVerifyModule.NAME)
-public class OtpVerifyModule extends ReactContextBaseJavaModule implements LifecycleEventListener {
+public class OtpVerifyModule extends ReactContextBaseJavaModule implements LifecycleEventListener, ActivityEventListener {
     public static final String NAME = "OtpVerify";
     private static final String TAG = OtpVerifyModule.class.getSimpleName();
+    private static final int RESOLVE_HINT = 10001;
+    private GoogleApiClient apiClient;
+    private Promise requestHintCallback;
     private final ReactApplicationContext reactContext;
     private BroadcastReceiver mReceiver;
     private boolean isReceiverRegistered = false;
@@ -38,6 +49,10 @@ public class OtpVerifyModule extends ReactContextBaseJavaModule implements Lifec
                 mReceiver = new OtpBroadcastReceiver(reactContext);
                 getReactApplicationContext().addLifecycleEventListener(this);
         registerReceiverIfNecessary(mReceiver);
+        reactContext.addActivityEventListener(this);
+        apiClient = new GoogleApiClient.Builder(reactContext)
+                .addApi(Auth.CREDENTIALS_API)
+                .build();
     }
 
     @Override
@@ -46,6 +61,36 @@ public class OtpVerifyModule extends ReactContextBaseJavaModule implements Lifec
         return NAME;
     }
 
+    @ReactMethod
+    public void requestHint(Promise promise) {
+        Activity currentActivity = getCurrentActivity();
+        requestHintCallback = promise;
+
+
+        if (currentActivity == null) {
+            requestHintCallback.reject("No Activity Found", "Current Activity Null.");
+            return;
+        }
+        try {
+            GetPhoneNumberHintIntentRequest request = GetPhoneNumberHintIntentRequest.builder().build();
+            Identity.getSignInClient(currentActivity)
+                    .getPhoneNumberHintIntent(request)
+                    .addOnSuccessListener( result -> {
+                        try {
+//                            phoneNumberHintIntentResultLauncher.launch(result.getIntentSender());
+                            currentActivity.startIntentSenderForResult(result.getIntentSender(), RESOLVE_HINT, null, 0, 0, 0);
+                        } catch(Exception e) {
+                            Log.e(TAG, "Launching the PendingIntent failed", e);
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.e(TAG, "Phone Number Hint failed", e);
+                    });
+
+        } catch (Exception e) {
+            requestHintCallback.reject(e);
+        }
+    }
 
     @ReactMethod
     public void getOtp(Promise promise) {
@@ -124,6 +169,25 @@ public class OtpVerifyModule extends ReactContextBaseJavaModule implements Lifec
                 e.printStackTrace();
             }
         }
+    }
+    @Override
+    public void onActivityResult(Activity activity, int requestCode, int resultCode, Intent data) {
+        if (requestCode == RESOLVE_HINT) {
+            if (resultCode == Activity.RESULT_OK) {
+                String phoneNumber = null;
+                try {
+                    phoneNumber = Identity.getSignInClient(activity).getPhoneNumberFromIntent(data);
+                    requestHintCallback.resolve(phoneNumber);
+                } catch (ApiException e) {
+                    requestHintCallback.reject(e.getMessage());
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onNewIntent(Intent intent) {
+
     }
 
     @Override

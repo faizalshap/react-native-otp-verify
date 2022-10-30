@@ -3,10 +3,13 @@
 ___
 [![npm version](https://badge.fury.io/js/react-native-otp-verify.svg)](https://badge.fury.io/js/react-native-otp-verify)
 
+- Automatic SMS Verification with the SMS Retriever API (Android Only)
+- Phone Number Retrieving using the Phone Number Hint API (Android Only)
+
 Automatic SMS Verification with the SMS Retriever API, you can perform SMS-based user verification in your Android app automatically, without requiring the user to manually type verification codes, and without requiring any extra app permissions.
 
 ## Message Format/Structure
-In order to detect the message, **SMS message must include a hash** that identifies your app. This hash can be obtained by using the getHash() method below.
+In order to detect the message, **_SMS message must include a hash_** that identifies your app. This hash can be obtained by using the getHash() method below.
 
 Please read the official documentation for the message structure at this
 [Google developer guide](https://developers.google.com/identity/sms-retriever/verify)
@@ -87,28 +90,33 @@ Linking the package manually is not required anymore with [**Autolinking**](http
 
 #### Methods
 ---
-### `startOtpListener(handler:(message:string)=>any):Promise<Subscription>`
+#### `requestHint: () => Promise<string>`
+
+Gets phone number in a frictionless way to show a user’s (SIM-based) phone numbers as a hint. [Check here](https://developers.google.com/identity/phone-number-hint/android#request-phone-number-hint)
+
+---
+#### `startOtpListener(handler:(message:string)=>any):Promise<Subscription>`
 
 Start listening for OTP/SMS and adds listener for the handler passed which is called when message is received..
 
 ---
-### `getOtp():Promise<boolean>`
+#### `getOtp():Promise<boolean>`
 
 Start listening for OTP/SMS. Return true if listener starts else throws error.
 
 ---
-### `getHash():Promise<string[]>`
+#### `getHash():Promise<string[]>`
 
 Gets the hash code for the application which should be added at the end of message.
 This is just a one time process.
 
 ---
-### `addListener(handler:(message:string)=>any):Subscription`
+#### `addListener(handler:(message:string)=>any):Subscription`
 
 Adds a javascript listener to the handler passed which is called when message is received.
 
 ---
-### `removeListener():void`
+#### `removeListener():void`
 
 Removes all listeners.
 

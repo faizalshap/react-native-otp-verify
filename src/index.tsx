@@ -23,6 +23,7 @@ const eventEmitter = new NativeEventEmitter(RNOtpVerify);
 interface OtpVerify {
   getOtp: () => Promise<boolean>;
   getHash: () => Promise<string[]>;
+  requestHint: () => Promise<string>;
   startOtpListener: (
     handler: (value: string) => any
   ) => Promise<import('react-native').EmitterSubscription>;
@@ -32,7 +33,11 @@ interface OtpVerify {
   removeListener: () => void;
 }
 
-export function getOtp(): Promise<boolean> {
+export async function getOtp(): Promise<boolean> {
+  if (Platform.OS === 'ios') {
+    console.warn('Not Supported on iOS');
+    return false;
+  }
   return RNOtpVerify.getOtp();
 }
 
@@ -60,7 +65,10 @@ export const useOtpVerify = ({ numberOfDigits } = { numberOfDigits: 0 }) => {
     }
   };
   useEffect(() => {
-    if (Platform.OS === 'ios') return;
+    if (Platform.OS === 'ios') {
+      console.warn('Not Supported on iOS');
+      return;
+    }
     getHash().then(setHash);
     startOtpListener(handleMessage);
     return () => {
@@ -68,20 +76,37 @@ export const useOtpVerify = ({ numberOfDigits } = { numberOfDigits: 0 }) => {
     };
   }, []);
   const startListener = () => {
-    if (Platform.OS === 'ios') return;
+    if (Platform.OS === 'ios') {
+      console.warn('Not Supported on iOS');
+      return;
+    }
     setOtp('');
     setMessage('');
     startOtpListener(handleMessage);
   };
   const stopListener = () => {
-    if (Platform.OS === 'ios') return;
+    if (Platform.OS === 'ios') {
+      console.warn('Not Supported on iOS');
+      return;
+    }
     removeListener();
   };
   return { otp, message, hash, timeoutError, stopListener, startListener };
 };
 
-export function getHash(): Promise<string[]> {
+export async function getHash(): Promise<string[]> {
+  if (Platform.OS === 'ios') {
+    console.warn('Not Supported on iOS');
+    return [];
+  }
   return RNOtpVerify.getHash();
+}
+export async function requestHint(): Promise<string> {
+  if (Platform.OS === 'ios') {
+    console.warn('Not Supported on iOS');
+    return '';
+  }
+  return RNOtpVerify.requestHint();
 }
 
 export function addListener(
@@ -105,6 +130,7 @@ const OtpVerify: OtpVerify = {
   addListener,
   removeListener,
   startOtpListener,
+  requestHint,
 };
 
 export default OtpVerify;
