@@ -76,8 +76,8 @@ Linking the package manually is not required anymore with [**Autolinking**](http
 ### Manual Linking
 
 1. Open up `android/app/src/main/java/[...]/MainActivity.java`
-- Add `import com.faizal.OtpVerify.RNOtpVerifyPackage;` to the imports at the top of the file
-- Add `new RNOtpVerifyPackage()` to the list returned by the `getPackages()` method
+- Add `import com.faizal.OtpVerify.OtpVerifyPackage;` to the imports at the top of the file
+- Add `new OtpVerifyPackage()` to the list returned by the `getPackages()` method
 2. Append the following lines to `android/settings.gradle`:
    ```gradle
    include ':react-native-otp-verify'
@@ -85,7 +85,7 @@ Linking the package manually is not required anymore with [**Autolinking**](http
    ```
 3. Insert the following lines inside the dependencies block in `android/app/build.gradle`:
    ```gradle
-     compile project(':react-native-otp-verify')
+     implementation project(':react-native-otp-verify')
    ```
 
 #### Methods
