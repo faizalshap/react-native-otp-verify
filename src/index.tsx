@@ -59,7 +59,7 @@ export const useOtpVerify = ({ numberOfDigits } = { numberOfDigits: 0 }) => {
     } else {
       setMessage(response);
       if (numberOfDigits && response) {
-        const otpDigits = /(\d{4})/g.exec(response);
+        const otpDigits = new RegExp(`(\\d{${numberOfDigits}})`, 'g').exec(response);
         if (otpDigits && otpDigits[1]) setOtp(otpDigits[1]);
       }
     }
