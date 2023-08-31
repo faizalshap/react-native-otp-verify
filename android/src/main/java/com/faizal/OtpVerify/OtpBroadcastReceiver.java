@@ -46,6 +46,9 @@ public class OtpBroadcastReceiver extends BroadcastReceiver {
         String o = intent.getAction();
         if (SmsRetriever.SMS_RETRIEVED_ACTION.equals(o)) {
             Bundle extras = intent.getExtras();
+            if (extras == null) {
+                return;
+            }
             Status status = (Status) extras.get(SmsRetriever.EXTRA_STATUS);
 
             if (status == null) {
