@@ -1,10 +1,13 @@
 package com.faizal.OtpVerify;
 
 import androidx.annotation.NonNull;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Build;
 import android.util.Log;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.LifecycleEventListener;
@@ -113,13 +116,25 @@ public class OtpVerifyModule extends ReactContextBaseJavaModule implements Lifec
     }
 
 
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
     private void registerReceiverIfNecessary(BroadcastReceiver receiver) {
         if (getCurrentActivity() == null) return;
         try {
-            getCurrentActivity().registerReceiver(
-                    receiver,
-                    new IntentFilter(SmsRetriever.SMS_RETRIEVED_ACTION)
-            );
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                getCurrentActivity().registerReceiver(
+                        receiver,
+                        new IntentFilter(SmsRetriever.SMS_RETRIEVED_ACTION),
+                        SmsRetriever.SEND_PERMISSION,
+                        null,
+                        Context.RECEIVER_EXPORTED
+                );
+            }
+            else {
+                getCurrentActivity().registerReceiver(
+                        receiver,
+                        new IntentFilter(SmsRetriever.SMS_RETRIEVED_ACTION)
+                );
+            }
             Log.d(TAG, "Receiver Registered");
             isReceiverRegistered = true;
         } catch (Exception e) {
