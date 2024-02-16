@@ -51,7 +51,7 @@ public class OtpVerifyModule extends ReactContextBaseJavaModule implements Lifec
         registerReceiverIfNecessary(mReceiver);
         reactContext.addActivityEventListener(this);
         apiClient = new GoogleApiClient.Builder(reactContext)
-                .addApi(Auth.CREDENTIALS_API)
+                .addApi(Auth.GOOGLE_SIGN_IN_API)
                 .build();
     }
 
