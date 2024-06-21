@@ -3,6 +3,9 @@ package com.faizal.OtpVerify;
 import androidx.annotation.NonNull;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.PendingIntent;
+import android.content.ActivityNotFoundException;
+import android.content.IntentSender;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -15,8 +18,9 @@ import com.facebook.react.bridge.LifecycleEventListener;
 import com.facebook.react.bridge.ActivityEventListener;
 import com.facebook.react.bridge.WritableArray;
 import com.google.android.gms.auth.api.Auth;
-import com.google.android.gms.auth.api.identity.GetPhoneNumberHintIntentRequest;
-import com.google.android.gms.auth.api.identity.Identity;
+import com.google.android.gms.auth.api.credentials.Credential;
+import com.google.android.gms.auth.api.credentials.Credentials;
+import com.google.android.gms.auth.api.credentials.HintRequest;
 import com.google.android.gms.auth.api.phone.SmsRetriever;
 import com.google.android.gms.auth.api.phone.SmsRetrieverClient;
 import com.google.android.gms.common.api.ApiException;
@@ -27,7 +31,9 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
+import java.security.Identity;
 import java.util.ArrayList;
+import java.util.Objects;
 
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -35,11 +41,18 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.module.annotations.ReactModule;
 
+
+
+import static android.app.Activity.RESULT_OK;
+
 @ReactModule(name = OtpVerifyModule.NAME)
 public class OtpVerifyModule extends ReactContextBaseJavaModule implements LifecycleEventListener, ActivityEventListener {
+   private ReactApplicationContext reactApplicationContext;
+   Promise promise;
+   private static int RESOLVE_HINT = 781;
+   private static int NONE_OF_THE_ABOVE_ERROR_CODE = 1001;
     public static final String NAME = "OtpVerify";
     private static final String TAG = OtpVerifyModule.class.getSimpleName();
-    private static final int RESOLVE_HINT = 10001;
     private GoogleApiClient apiClient;
     private Promise requestHintCallback;
     private final ReactApplicationContext reactContext;
@@ -66,32 +79,18 @@ public class OtpVerifyModule extends ReactContextBaseJavaModule implements Lifec
 
     @ReactMethod
     public void requestHint(Promise promise) {
-        Activity currentActivity = getCurrentActivity();
-        requestHintCallback = promise;
+        this.promise = promise;
+        HintRequest hintRequest = new HintRequest.Builder()
+                .setPhoneNumberIdentifierSupported(true)
+                .build();
 
-
-        if (currentActivity == null) {
-            requestHintCallback.reject("No Activity Found", "Current Activity Null.");
-            return;
-        }
+        PendingIntent intent = Credentials.getClient(this.reactApplicationContext).getHintPickerIntent(hintRequest);
         try {
-            GetPhoneNumberHintIntentRequest request = GetPhoneNumberHintIntentRequest.builder().build();
-            Identity.getSignInClient(currentActivity)
-                    .getPhoneNumberHintIntent(request)
-                    .addOnSuccessListener( result -> {
-                        try {
-//                            phoneNumberHintIntentResultLauncher.launch(result.getIntentSender());
-                            currentActivity.startIntentSenderForResult(result.getIntentSender(), RESOLVE_HINT, null, 0, 0, 0);
-                        } catch(Exception e) {
-                            Log.e(TAG, "Launching the PendingIntent failed", e);
-                        }
-                    })
-                    .addOnFailureListener(e -> {
-                        Log.e(TAG, "Phone Number Hint failed", e);
-                    });
-
-        } catch (Exception e) {
-            requestHintCallback.reject(e);
+            Objects.requireNonNull(this.reactApplicationContext.getCurrentActivity()).startIntentSenderForResult(intent.getIntentSender(),RESOLVE_HINT,null,0,0,0, null);
+        } catch (IntentSender.SendIntentException e) {
+            Log.d("SendIntentException", e.getMessage());
+        } catch (ActivityNotFoundException exception) {
+            Log.d("ActivityNotFoundE", exception.getMessage());
         }
     }
 
@@ -188,13 +187,19 @@ public class OtpVerifyModule extends ReactContextBaseJavaModule implements Lifec
     @Override
     public void onActivityResult(Activity activity, int requestCode, int resultCode, Intent data) {
         if (requestCode == RESOLVE_HINT) {
-            if (resultCode == Activity.RESULT_OK) {
-                String phoneNumber = null;
+            if (resultCode == RESULT_OK) {
                 try {
-                    phoneNumber = Identity.getSignInClient(activity).getPhoneNumberFromIntent(data);
-                    requestHintCallback.resolve(phoneNumber);
-                } catch (ApiException e) {
-                    requestHintCallback.reject(e.getMessage());
+                    Credential credential = data.getParcelableExtra(Credential.EXTRA_KEY);
+                    this.promise.resolve(credential.getId());
+                } catch(Exception e) {
+                    Log.e("Error" , e.getMessage());
+                }
+
+            } else {
+                try {
+                    this.promise.reject("ERROR", resultCode == NONE_OF_THE_ABOVE_ERROR_CODE ? "NONE_OF_THE_ABOVE" : "MOBILE_PICKER_MODAL_CLOSED");
+                } catch(Exception e) {
+                    Log.e("Error" , e.getMessage());
                 }
             }
         }
