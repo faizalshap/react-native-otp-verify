@@ -47,7 +47,6 @@ import static android.app.Activity.RESULT_OK;
 
 @ReactModule(name = OtpVerifyModule.NAME)
 public class OtpVerifyModule extends ReactContextBaseJavaModule implements LifecycleEventListener, ActivityEventListener {
-   private ReactApplicationContext reactApplicationContext;
    Promise promise;
    private static int RESOLVE_HINT = 781;
    private static int NONE_OF_THE_ABOVE_ERROR_CODE = 1001;
@@ -59,7 +58,7 @@ public class OtpVerifyModule extends ReactContextBaseJavaModule implements Lifec
     private BroadcastReceiver mReceiver;
     private boolean isReceiverRegistered = false;
 
-    public OtpVerifyModule(ReactApplicationContext reactContext) {
+    public OtpVerifyModule(@NonNull ReactApplicationContext reactContext) {
         super(reactContext);
         this.reactContext = reactContext;
                 mReceiver = new OtpBroadcastReceiver(reactContext);
@@ -84,9 +83,9 @@ public class OtpVerifyModule extends ReactContextBaseJavaModule implements Lifec
                 .setPhoneNumberIdentifierSupported(true)
                 .build();
 
-        PendingIntent intent = Credentials.getClient(this.reactApplicationContext).getHintPickerIntent(hintRequest);
+        PendingIntent intent = Credentials.getClient(this.reactContext).getHintPickerIntent(hintRequest);
         try {
-            Objects.requireNonNull(this.reactApplicationContext.getCurrentActivity()).startIntentSenderForResult(intent.getIntentSender(),RESOLVE_HINT,null,0,0,0, null);
+            Objects.requireNonNull(this.reactContext.getCurrentActivity()).startIntentSenderForResult(intent.getIntentSender(),RESOLVE_HINT,null,0,0,0, null);
         } catch (IntentSender.SendIntentException e) {
             Log.d("SendIntentException", e.getMessage());
         } catch (ActivityNotFoundException exception) {
