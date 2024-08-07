@@ -19,6 +19,10 @@ def safeExtGet(prop, fallback) {
 }
 
 android {
+    def agpVersion = com.android.Version.ANDROID_GRADLE_PLUGIN_VERSION.tokenize('.')[0].toInteger()
+    if (agpVersion >= 7) {
+        namespace 'com.faizal.OtpVerify'
+    }
     compileSdkVersion safeExtGet('OtpVerify_compileSdkVersion', 34)
     defaultConfig {
         minSdkVersion safeExtGet('OtpVerify_minSdkVersion', 21)
