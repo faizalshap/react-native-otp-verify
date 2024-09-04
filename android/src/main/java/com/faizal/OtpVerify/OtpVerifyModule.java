@@ -195,6 +195,8 @@ public class OtpVerifyModule extends ReactContextBaseJavaModule implements Lifec
                     requestHintCallback.resolve(phoneNumber);
                 } catch (ApiException e) {
                     requestHintCallback.reject(e.getMessage());
+                } catch (NullPointerException e) {
+                    requestHintCallback.reject(e.getMessage());
                 }
             }
         }
