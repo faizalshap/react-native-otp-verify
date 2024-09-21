@@ -3,6 +3,7 @@ package com.faizal.OtpVerify;
 import androidx.annotation.NonNull;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.telephony.TelephonyManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -74,6 +75,12 @@ public class OtpVerifyModule extends ReactContextBaseJavaModule implements Lifec
             requestHintCallback.reject("No Activity Found", "Current Activity Null.");
             return;
         }
+
+        if (isSimUnavailable()) {
+            requestHintCallback.reject("No Sim Avaiable", "Simcard is not available");
+            return;
+        }
+
         try {
             GetPhoneNumberHintIntentRequest request = GetPhoneNumberHintIntentRequest.builder().build();
             Identity.getSignInClient(currentActivity)
@@ -84,17 +91,29 @@ public class OtpVerifyModule extends ReactContextBaseJavaModule implements Lifec
                             currentActivity.startIntentSenderForResult(result.getIntentSender(), RESOLVE_HINT, null, 0, 0, 0);
                         } catch(Exception e) {
                             Log.e(TAG, "Launching the PendingIntent failed", e);
+                            requestHintCallback.reject("Simcard intent failed", "Simcard intent failed");
                         }
                     })
                     .addOnFailureListener(e -> {
                         Log.e(TAG, "Phone Number Hint failed", e);
+                        requestHintCallback.reject("Simcard permission rejected", "Simcard access forbidden");
                     });
 
         } catch (Exception e) {
             requestHintCallback.reject(e);
         }
     }
-
+    
+    public boolean isSimUnavailable() {
+        try {
+            Activity currentActivity = getCurrentActivity();
+            TelephonyManager telephonyManager = (TelephonyManager) currentActivity.getSystemService(Context.TELEPHONY_SERVICE);            
+            return !(telephonyManager.getSimState() == TelephonyManager.SIM_STATE_READY);
+        } catch (UnsupportedOperationException e) {
+            return true;
+        }
+    }
+    
     @ReactMethod
     public void getOtp(Promise promise) {
         requestOtp(promise);
