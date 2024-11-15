@@ -9,10 +9,22 @@ ___
 Automatic SMS Verification with the SMS Retriever API, you can perform SMS-based user verification in your Android app automatically, without requiring the user to manually type verification codes, and without requiring any extra app permissions.
 
 ## Message Format/Structure
-In order to detect the message, **_SMS message must include a hash_** that identifies your app. This hash can be obtained by using the getHash() method below.
 
-Please read the official documentation for the message structure at this
-[Google developer guide](https://developers.google.com/identity/sms-retriever/verify)
+To enable SMS retrieval using the SMS Retriever API, the **_SMS message must include a hash_** that uniquely identifies your app. This hash ensures secure message verification and must be included for the OTP to work.
+
+### **Important Requirements**
+1. The **hash** is obtained by calling the `getHash()` method provided by this library.
+2. When constructing your SMS message, **prepend the hash with a `#` symbol** (e.g., `#YourHashHere`).
+3. The complete message must include the hash; otherwise, the OTP retrieval will fail.
+
+Example message format:
+
+`Your verification code is 1234. #YourAppHash`
+
+Developers frequently overlook this critical step, leading to errors during implementation. Ensure your SMS message adheres to this format to avoid issues.
+
+For more details, refer to the official Google Developer Guide:  
+[Google Developer Guide](https://developers.google.com/identity/sms-retriever/verify)
 
 ## Quick start 🔥
 #### Installation
