@@ -14,6 +14,8 @@
     "ios",
     "cpp",
     "react-native-otp-verify.podspec",
+    ".gradle",
+    ".idea",
     "!lib/typescript/example",
     "!android/build",
     "!ios/build",
