@@ -35,6 +35,8 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.module.annotations.ReactModule;
+import com.google.i18n.phonenumbers.PhoneNumberUtil;
+import com.google.i18n.phonenumbers.Phonenumber;
 
 @ReactModule(name = OtpVerifyModule.NAME)
 public class OtpVerifyModule extends ReactContextBaseJavaModule implements LifecycleEventListener, ActivityEventListener {
@@ -106,10 +108,15 @@ public class OtpVerifyModule extends ReactContextBaseJavaModule implements Lifec
     
     public boolean isSimUnavailable() {
         try {
-            Activity currentActivity = getCurrentActivity();
-            TelephonyManager telephonyManager = (TelephonyManager) currentActivity.getSystemService(Context.TELEPHONY_SERVICE);            
-            return !(telephonyManager.getSimState() == TelephonyManager.SIM_STATE_READY);
-        } catch (UnsupportedOperationException e) {
+            TelephonyManager telephonyManager =
+                (TelephonyManager) reactContext.getSystemService(Context.TELEPHONY_SERVICE);
+
+            if (telephonyManager == null) return true;
+
+            return telephonyManager.getSimState()
+                    != TelephonyManager.SIM_STATE_READY;
+
+        } catch (Exception e) {
             return true;
         }
     }
@@ -204,6 +211,29 @@ public class OtpVerifyModule extends ReactContextBaseJavaModule implements Lifec
             }
         }
     }
+
+    private String normalizeNumber(String phoneNumber) {
+        try {
+            TelephonyManager tm =
+                (TelephonyManager) reactContext.getSystemService(Context.TELEPHONY_SERVICE);
+
+            String simCountry = tm.getSimCountryIso().toUpperCase();
+
+            PhoneNumberUtil util = PhoneNumberUtil.getInstance();
+
+            Phonenumber.PhoneNumber numberProto =
+                    util.parse(phoneNumber, simCountry);
+
+            return util.format(
+                    numberProto,
+                    PhoneNumberUtil.PhoneNumberFormat.E164
+            );
+
+        } catch (Exception e) {
+            return phoneNumber; // fallback
+        }
+    }
+    
     @Override
     public void onActivityResult(Activity activity, int requestCode, int resultCode, Intent data) {
         if (requestCode == RESOLVE_HINT) {
@@ -211,7 +241,8 @@ public class OtpVerifyModule extends ReactContextBaseJavaModule implements Lifec
                 String phoneNumber = null;
                 try {
                     phoneNumber = Identity.getSignInClient(activity).getPhoneNumberFromIntent(data);
-                    requestHintCallback.resolve(phoneNumber);
+                    String normalized = normalizeNumber(phoneNumber);
+                    requestHintCallback.resolve(normalized);
                 } catch (ApiException e) {
                     requestHintCallback.reject(e.getMessage());
                 } catch (NullPointerException e) {
