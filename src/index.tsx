@@ -1,5 +1,5 @@
 import { NativeEventEmitter, NativeModules, Platform } from 'react-native';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 const LINKING_ERROR =
   `The package 'react-native-otp-verify' doesn't seem to be linked. Make sure: \n\n` +
@@ -44,7 +44,13 @@ export async function getOtp(): Promise<boolean> {
 export function startOtpListener(
   handler: (value: string) => any
 ): Promise<import('react-native').EmitterSubscription> {
-  return getOtp().then(() => addListener(handler));
+  const subscription = addListener(handler);
+  return getOtp()
+    .then(() => subscription)
+    .catch((error) => {
+      subscription.remove();
+      throw error;
+    });
 }
 
 export const useOtpVerify = ({ numberOfDigits } = { numberOfDigits: 0 }) => {
@@ -53,17 +59,22 @@ export const useOtpVerify = ({ numberOfDigits } = { numberOfDigits: 0 }) => {
   const [timeoutError, setTimeoutError] = useState<boolean>(false);
   const [hash, setHash] = useState<string[] | null>([]);
 
-  const handleMessage = (response: string) => {
-    if (response === 'Timeout Error.') {
-      setTimeoutError(true);
-    } else {
-      setMessage(response);
-      if (numberOfDigits && response) {
-        const otpDigits = new RegExp(`(\\d{${numberOfDigits}})`, 'g').exec(response);
-        if (otpDigits && otpDigits[1]) setOtp(otpDigits[1]);
+  const handleMessage = useCallback(
+    (response: string) => {
+      if (response === 'Timeout Error.') {
+        setTimeoutError(true);
+      } else {
+        setMessage(response);
+        if (numberOfDigits && response) {
+          const otpDigits = new RegExp(`(\\d{${numberOfDigits}})`, 'g').exec(
+            response
+          );
+          if (otpDigits && otpDigits[1]) setOtp(otpDigits[1]);
+        }
       }
-    }
-  };
+    },
+    [numberOfDigits]
+  );
   useEffect(() => {
     if (Platform.OS === 'ios') {
       console.warn('Not Supported on iOS');
@@ -74,7 +85,7 @@ export const useOtpVerify = ({ numberOfDigits } = { numberOfDigits: 0 }) => {
     return () => {
       removeListener();
     };
-  }, []);
+  }, [handleMessage]);
   const startListener = () => {
     if (Platform.OS === 'ios') {
       console.warn('Not Supported on iOS');
